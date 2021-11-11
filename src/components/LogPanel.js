@@ -1,37 +1,38 @@
-import React from "react";
+import React, {useState} from "react";
 import { Segment, Button } from "semantic-ui-react";
-import { Log } from "../services/Log";
 
-function LogPanel() {
-  function dummyLogs() {
-    // This is just to show you how this should work. But where should the log data actually get stored?
-    // And where should we be creating logs in the first place?
-    // Use the Log Service class (located in: 'src/services/Log') we've created anywhere you like.
-    // Just remember to import it
+function LogPanel({updateStatusAll, hostData, logs}) {
 
-    let logs = [];
+  const [status, setStatus] = useState(false)
 
-    logs.unshift(Log.warn("This is an example of a warn log"));
-    logs.unshift(Log.notify("This is an example of a notify log"));
-    logs.unshift(Log.error("This is an example of an error log"));
+  const unifiedTrue = hostData.filter(host => host.active === true)
+  const unifiedFalse = hostData.filter(host => host.active === false)
 
-    return logs;
+  if (unifiedTrue.length === hostData.length){
+    if (status !== false){
+      setStatus(false)
+    }
+  } else if(unifiedFalse.length === hostData.length){
+    if(status !== true){
+      setStatus(true)
+    }
   }
 
   return (
     <Segment className="HQComps" id="logPanel">
       <pre>
-        {dummyLogs().map((log, i) => (
+        {logs.map((log, i) => (
+          <>
           <p key={i} className={log.type}>
             {log.msg}
           </p>
+          </>
         ))}
       </pre>
-
-      {/* Button below is the Activate All/Decommisssion All button */}
-      {/* This isn't always going to be the same color...*/}
-      {/* Should the button always read "ACTIVATE ALL"? When should it read "DECOMMISSION ALL"? */}
-      <Button fluid color={"red"} content={"ACTIVATE ALL"} />
+      <Button fluid color={status ? "green" : "red" } content={status ? "ACTIVATE ALL" : "DECOMMISSION ALL" } onClick={() => {
+        updateStatusAll(status)
+        setStatus(status => !status)
+        }}/>
     </Segment>
   );
 }
